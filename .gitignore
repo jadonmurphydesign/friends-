@@ -1,0 +1,18 @@
+# --- .NET ---
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# --- Frontend / Node ---
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+*.log
+.env
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
