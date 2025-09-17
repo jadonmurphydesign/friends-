@@ -57,6 +57,12 @@ friends/
 
 ---
 
+> **Mac users:** If you run
+ `chmod +x setup.sh` &&
+ `setup.sh`
+ 
+ script from the project root to automate the database and backend setup. This will handle container management, connection strings, package installation, migrations, and running the backend. You can skip the manual steps 1 and  2.a-g below if you use the script.
+
 ## 1) Database: PostgreSQL via Podman
 
 Create and run a Postgres container (with a named volume for persistence):
@@ -86,6 +92,7 @@ podman exec -it friends-pg psql -U postgres -d friends -c "SELECT version();"
 ---
 
 ## 2) Backend Setup
+
 
 From `friends/backend`:
 
