@@ -41,18 +41,28 @@ friends/
 │     ├─ IFriendsRepository.cs
 │     └─ FriendsRepository.cs
 └─ frontend/
-   ├─ app/
-   │  └─ friends/
-   │     └─ page.tsx
-   ├─ components/
-   │  ├─ Modal.tsx
-   │  ├─ FormikInput.tsx
-   │  └─ AddFriendModal.tsx
-   ├─ services/
-   │  └─ friends.ts
-   ├─ types/
-   │  └─ friends.ts
-   └─ .env.local
+  ├─ src/
+  │  ├─ app/
+  │  │  ├─ dashboard/
+  │  │  ├─ login/
+  │  │  │  └─ page.tsx
+  │  │  ├─ signup/
+  │  │  │  └─ page.tsx
+  │  │  ├─ favicon.ico
+  │  │  ├─ globals.css
+  │  │  ├─ layout.tsx
+  │  │  └─ page.tsx
+  │  ├─ components/
+  │  │  ├─ Button.tsx
+  │  │  ├─ FormikInput.tsx
+  │  │  ├─ FriendsTable.tsx
+  │  │  └─ Modal.tsx
+  │  ├─ services/
+  │  │  ├─ api.ts
+  │  │  └─ friends.ts
+  │  ├─ types/
+  │  │  └─ friends.ts
+  └─ .env.local
 ```
 
 ---
@@ -97,8 +107,8 @@ podman exec -it friends-pg psql -U postgres -d friends -c "SELECT version();"
 
 ---
 
-## 2) Backend Setup
 
+## 2) Backend Setup
 
 From `friends/backend`:
 
@@ -110,6 +120,9 @@ From `friends/backend`:
 {
   "ConnectionStrings": {
     "Default": "Host=127.0.0.1;Port=5432;Database=friends;Username=postgres;Password=secret"
+  },
+  "Jwt": {
+    "Key": "this_is_a_very_long_super_secret_key_123456"
   }
 }
 ```
@@ -120,28 +133,52 @@ From `friends/backend`:
 dotnet add package Microsoft.EntityFrameworkCore
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
 ```
 
-### g) Create schema and run
+### c) Enable Identity and JWT Authentication
+
+In `Program.cs`, configure Identity and JWT authentication as shown in the guide above.
+
+### d) Migrate database (includes Identity tables)
 
 ```bash
 # from friends/backend
-dotnet ef migrations add Initial
+dotnet ef migrations add AddIdentity
 dotnet ef database update
 
 # run the API
 dotnet run
 ```
 
-Test:
+### e) Test authentication endpoints
 
+#### Register a user
 ```bash
-# Replace port with the HTTP port printed by dotnet run
-curl http://localhost:5271/api/friends
-curl -X POST http://localhost:5271/api/friends \
+curl -X POST http://localhost:5271/api/account/register \
   -H "Content-Type: application/json" \
-  -d '{"fullName":"Sam Lee","age":28,"city":"Austin","favoriteColor":"Orange","bio":"Climber"}'
+  -d '{"email":"test-user123@gmail.com","password":"TestUser123!"}'
 ```
+
+#### Login and get JWT
+```bash
+curl -X POST http://localhost:5271/api/account/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test-user123@gmail.com","password":"TestUser123!"}'
+```
+Response:
+```json
+{"token":"<JWT_TOKEN_HERE>"}
+```
+
+#### Access a protected endpoint
+```bash
+curl http://localhost:5271/api/friends \
+  -H "Authorization: Bearer <JWT_TOKEN_HERE>"
+```
+
+If you omit the token or use an invalid one, you'll get a 401 Unauthorized error.
 
 ---
 

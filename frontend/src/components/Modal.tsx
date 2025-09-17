@@ -2,10 +2,11 @@
 
 // just going to paste in a headlessui modal i made in an old project
 
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { Friend } from '@/types/friends';
 
 interface ModalProps {
-  open: boolean;
+  open: boolean | Friend;
   setOpen: (open: boolean) => void;
   submitAction?: () => void | Promise<void>;
   title: string;
@@ -24,14 +25,14 @@ export default function Modal({
 }: ModalProps) {
 
   let submitColor = "bg-blue-600 hover:bg-blue-500 text-white";
-  if (submitType === "severe") {
+  if (submitType === "severe" && !submitDisabled) {
     submitColor = "bg-red-600 hover:bg-red-500 text-white";
   } else if (submitDisabled) {
     submitColor = "bg-gray-300 text-gray-500 cursor-not-allowed";
   }
 
   return (
-    <Dialog open={open} onClose={setOpen} className="relative z-10">
+    <Dialog open={typeof open === "object" ? Boolean(open.id) : open} onClose={setOpen} className="relative z-10">
       <DialogBackdrop
         transition
         aria-hidden="true"

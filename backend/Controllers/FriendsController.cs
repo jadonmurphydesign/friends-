@@ -2,12 +2,24 @@ using FriendsApi.Models;
 using FriendsApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
+using Microsoft.AspNetCore.Authorization;
 namespace FriendsApi.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class FriendsController(IFriendsRepository repo) : ControllerBase
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class FriendsController : ControllerBase
 {
+    private readonly IFriendsRepository repo;
+    public FriendsController(IFriendsRepository repo) => this.repo = repo;
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Friend>> Update(string id, [FromBody] UpdateFriendDto dto)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var updated = await repo.UpdateAsync(id, dto);
+        return updated is null ? NotFound() : Ok(updated);
+    }
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Friend>>> GetAll() =>
         Ok(await repo.GetAllAsync());

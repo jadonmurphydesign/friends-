@@ -28,6 +28,19 @@ public class FriendsRepository(AppDbContext db) : IFriendsRepository
         return entity;
     }
 
+    public async Task<Friend?> UpdateAsync(string id, UpdateFriendDto dto)
+    {
+        var entity = await db.Friends.FirstOrDefaultAsync(f => f.Id == id);
+        if (entity is null) return null;
+        entity.FullName = dto.FullName.Trim();
+        entity.Age = dto.Age;
+        entity.City = dto.City?.Trim() ?? "";
+        entity.FavoriteColor = dto.FavoriteColor?.Trim() ?? "";
+        entity.Bio = dto.Bio?.Trim() ?? "";
+        await db.SaveChangesAsync();
+        return entity;
+    }
+
     public async Task<bool> RemoveAsync(string id)
     {
         var entity = await db.Friends.FirstOrDefaultAsync(f => f.Id == id);

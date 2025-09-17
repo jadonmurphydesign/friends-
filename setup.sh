@@ -57,11 +57,27 @@ for f in appsettings.json appsettings.Development.json; do
 done
 
 echo "==> Ensuring required NuGet packages..."
+
 dotnet add package Microsoft.EntityFrameworkCore
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
 
-echo "==> Running EF Core migrations..."
+
+# Ensure Jwt key exists in appsettings.json and appsettings.Development.json
+JWT_KEY_LINE='    "Key": "this_is_a_very_long_super_secret_key_123456"'
+for f in appsettings.json appsettings.Development.json; do
+  if [ -f "$f" ]; then
+    if ! grep -q '"Jwt"' "$f"; then
+      # Add Jwt section before last closing brace
+      sed -i "/^}$/i \\n  ,\n  \"Jwt\": {\n$JWT_KEY_LINE\n  }\n" "$f"
+      echo "Added Jwt key to $f"
+    fi
+  fi
+done
+
+echo "==> Running EF Core migrations (including Identity)..."
 dotnet ef database update
 
 echo "==> Running backend API..."

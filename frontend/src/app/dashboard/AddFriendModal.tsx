@@ -6,16 +6,8 @@ import * as Yup from 'yup';
 
 import Modal from '@/components/Modal';
 import FormikInput from '@/components/FormikInput';
-import { createFriend } from '@/services/friends';
+import { createOrUpdateFriend, deleteFriend } from '@/services/friends';
 import type { Friend } from '@/types/friends';
-
-type FormVals = {
-  fullName: string;
-  age: string | number;
-  city: string;
-  favoriteColor: string;
-  bio: string;
-};
 
 const schema = Yup.object({
   fullName: Yup.string().trim().min(2).max(100).required('Name is required'),
@@ -30,34 +22,28 @@ const schema = Yup.object({
   bio: Yup.string().trim().max(500).notRequired(),
 });
 
-const initialValues: FormVals = {
-  fullName: '',
-  age: '',
-  city: '',
-  favoriteColor: '',
-  bio: '',
-};
-
 interface AddFriendModalProps {
-  open: boolean;
+  open: boolean | Friend;
   setOpen: (open: boolean) => void;
-  onCreated: (created: Friend) => void;
+  onComplete: (created: Friend, isNew: boolean) => void;
+  editValue?: Friend;
 }
 
-export default function AddFriendModal({ open, setOpen, onCreated }: AddFriendModalProps) {
-  const formikRef = useRef<FormikProps<FormVals>>(null);
+export default function AddFriendModal({ open, setOpen, onComplete }: AddFriendModalProps) {
+  const formikRef = useRef<FormikProps<Friend>>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = async (values: FormVals) => {
+  const isEdit =  typeof open === 'object' && 'id' in open ? Boolean(open.id) : false;
+
+  const handleSubmit = async (values: Friend) => {
+    const param = {...values};
+
+    if(isEdit) {
+      param.id = (open as Friend).id;
+    }
     try {
-      const created = await createFriend({
-        fullName: values.fullName.trim(),
-        age: Number(values.age),
-        city: values.city.trim(),
-        favoriteColor: values.favoriteColor.trim(),
-        bio: values.bio?.trim() || '',
-      });
-      onCreated(created);
+      const created = await createOrUpdateFriend(param, isEdit);
+      onComplete(created, false);
       formikRef.current?.resetForm();
       setOpen(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,21 +54,47 @@ export default function AddFriendModal({ open, setOpen, onCreated }: AddFriendMo
     }
   };
 
+  const handleDelete = async () => {
+    if (!isEdit) return;
+    try {
+      await deleteFriend((open as Friend).id as string);
+      onComplete(open as Friend, true);
+      formikRef.current?.resetForm();
+      setOpen(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setSubmitError(e.message ?? 'Failed to delete friend');
+    } finally {
+      formikRef.current?.setSubmitting(false);
+    }
+  }
+
+  const initialValues: Friend = isEdit ? open as Friend : {
+    fullName: '',
+    age: '',
+    city: '',
+    favoriteColor: '',
+    bio: '',
+  };
+
   return (
-    <Formik<FormVals>
+    <Formik<Friend>
       innerRef={formikRef}
       initialValues={initialValues}
       validationSchema={schema}
       onSubmit={handleSubmit}
+      enableReinitialize={true}
     >
       {({ isSubmitting }) => (
         <Modal
           open={open}
           setOpen={setOpen}
-          title="Add Friend and Press Enter"
+          title="Add/Update Friend and Press Enter"
           cancelText="Cancel"
-          submitDisabled={isSubmitting}
-          submitAction={() => formikRef.current?.submitForm()}
+          submitDisabled={isSubmitting || !isEdit}
+          submitAction={() => handleDelete()}
+          submitText='Delete Friend'
+          submitType="severe"
           cancelAction={() => {
             formikRef.current?.resetForm();
             setSubmitError(null);
