@@ -57,11 +57,17 @@ friends/
 
 ---
 
-> **Mac users:** If you run
- `chmod +x setup.sh` &&
- `setup.sh`
- 
- script from the project root to automate the database and backend setup. This will handle container management, connection strings, package installation, migrations, and running the backend. You can skip the manual steps 1 and  2.a-g below if you use the script.
+
+> **🚀 Mac users: Quick Setup**
+>
+> To automate the database and backend setup, you can use the provided script instead of following steps 1 and 2.a-g manually:
+>
+> ```bash
+> chmod +x setup.sh
+> ./setup.sh
+> ```
+>
+> This will handle container management, connection strings, package installation, migrations, and running the backend for you.
 
 ## 1) Database: PostgreSQL via Podman
 
