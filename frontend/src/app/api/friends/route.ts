@@ -36,15 +36,3 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   return forwardRequest(req, 'POST');
 }
-
-export async function PUT(req: NextRequest) {
-  const url = new URL(req.url);
-  const id = url.pathname.split('/').pop();
-  return forwardRequest(req, 'PUT', id);
-}
-
-export async function DELETE(req: NextRequest) {
-  const url = new URL(req.url);
-  const id = url.pathname.split('/').pop();
-  return forwardRequest(req, 'DELETE', id);
-}
