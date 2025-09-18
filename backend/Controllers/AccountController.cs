@@ -45,14 +45,15 @@ public class AccountController : ControllerBase
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email)
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
         };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "your_super_secret_key_here"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.Now.AddDays(7),
+            expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: creds);
 
         return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });

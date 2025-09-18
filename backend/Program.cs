@@ -26,23 +26,26 @@ builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+// Debug print the JWT secret being used
+Console.WriteLine($"[DEBUG] JWT Secret: {builder.Configuration["Jwt:Key"]}");
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = "JwtBearer";
-    options.DefaultChallengeScheme = "JwtBearer";
+    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer("JwtBearer", options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes("your_super_secret_key_here"))
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ClockSkew = TimeSpan.FromMinutes(5)
+        };
+    });
 
 var app = builder.Build();
 
@@ -54,6 +57,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowNextJs");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

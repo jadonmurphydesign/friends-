@@ -21,8 +21,10 @@ namespace FriendsApi.Controllers;
         return updated is null ? NotFound() : Ok(updated);
     }
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Friend>>> GetAll() =>
-        Ok(await repo.GetAllAsync());
+    public async Task<ActionResult<IEnumerable<Friend>>> GetAll()
+    {
+        return Ok(await repo.GetAllAsync());
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Friend>> GetById(string id)

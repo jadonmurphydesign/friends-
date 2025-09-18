@@ -51,22 +51,28 @@ export default function Home() {
     }
   };
 
-  if (loading) {
-    return <div className="mx-auto max-w-5xl p-6">Loading...</div>;
-  } else if (!loading && friends.length === 0) {
-    return <div className="mx-auto max-w-5xl p-6">No friends found - you are lonely.</div>;
-  };
-
-  return (
-    <main className="mx-auto max-w-5xl p-6 relative">
-      {/* Absolute Logout Button */}
-      <button
+  const logoutButton = (
+    <button
         onClick={logout}
         className="px-4 py-2 rounded-xl bg-red-500 text-white font-medium shadow-md hover:bg-red-600 active:scale-95 transition-all duration-200"
         style={{ position: 'absolute', top: 24, right: 24, zIndex: 50 }}
       >
         Logout
       </button>
+  )
+
+  if (loading) {
+    return <div className="mx-auto max-w-5xl p-6">Loading...</div>;
+  } else if (!loading && friends.length === 0) {
+    return <>
+      {logoutButton}
+      <div className="mx-auto max-w-5xl p-6">No friends found - you are lonely.</div>
+    </>;
+  };
+
+  return (
+    <main className="mx-auto max-w-5xl p-6 relative">
+      {logoutButton}
       <AddFriendModal
         open={modalOpen}
         setOpen={setModalOpen}

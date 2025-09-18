@@ -63,6 +63,9 @@ dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
 dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
 dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package Microsoft.IdentityModel.Tokens --version 8.14.0
+dotnet add package Microsoft.IdentityModel.JsonWebTokens --version 8.14.0
+dotnet add package System.IdentityModel.Tokens.Jwt --version 8.14.0
 
 
 # Ensure Jwt key exists in appsettings.json and appsettings.Development.json
@@ -76,6 +79,9 @@ for f in appsettings.json appsettings.Development.json; do
     fi
   fi
 done
+
+echo "==> Restoring NuGet packages..."
+dotnet restore
 
 echo "==> Running EF Core migrations (including Identity)..."
 dotnet ef database update
