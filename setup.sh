@@ -61,8 +61,8 @@ echo "==> Ensuring required NuGet packages..."
 dotnet add package Microsoft.EntityFrameworkCore
 dotnet add package Microsoft.EntityFrameworkCore.Design
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
-dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 8.0.7
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 8.0.7
 dotnet add package Microsoft.IdentityModel.Tokens --version 8.14.0
 dotnet add package Microsoft.IdentityModel.JsonWebTokens --version 8.14.0
 dotnet add package System.IdentityModel.Tokens.Jwt --version 8.14.0
@@ -79,6 +79,15 @@ for f in appsettings.json appsettings.Development.json; do
     fi
   fi
 done
+
+echo "==> Ensuring dotnet-ef tool is installed..."
+if ! command -v dotnet-ef &> /dev/null; then
+  echo "dotnet-ef not found, installing globally..."
+  dotnet tool install --global dotnet-ef
+  export PATH="$PATH:~/.dotnet/tools"
+else
+  echo "dotnet-ef is already installed."
+fi
 
 echo "==> Restoring NuGet packages..."
 dotnet restore
