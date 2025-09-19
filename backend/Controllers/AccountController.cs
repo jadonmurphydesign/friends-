@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace FriendsApi.Controllers;
 
+/// <summary>
+/// Controller for user account management, including registration and login.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
@@ -23,6 +26,11 @@ public class AccountController : ControllerBase
         _configuration = configuration;
     }
 
+    /// <summary>
+    /// Registers a new user account.
+    /// </summary>
+    /// <param name="dto">The registration data (email and password).</param>
+    /// <returns>Ok if successful; otherwise, BadRequest with errors.</returns>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
@@ -33,6 +41,11 @@ public class AccountController : ControllerBase
         return BadRequest(result.Errors);
     }
 
+    /// <summary>
+    /// Authenticates a user and returns a JWT token if successful.
+    /// </summary>
+    /// <param name="dto">The login data (email and password).</param>
+    /// <returns>JWT token if successful; otherwise, Unauthorized.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
@@ -46,7 +59,7 @@ public class AccountController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "your_super_secret_key_here"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
