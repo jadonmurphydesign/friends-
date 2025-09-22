@@ -42,6 +42,7 @@ export default function SignupPage() {
       }) => void;
     }
   ) => {
+    setSubmitting(true);
     await handleSignUp(values, { setSubmitting, setErrors });
     router.push('/dashboard');
   };

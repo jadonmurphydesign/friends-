@@ -59,35 +59,46 @@ export default function Home() {
       >
         Logout
       </button>
-  )
+  );
 
-  if (loading) {
-    return <div className="mx-auto max-w-5xl p-6">Loading...</div>;
-  } else if (!loading && friends.length === 0) {
-    return <>
-      {logoutButton}
-      <div className="mx-auto max-w-5xl p-6">No friends found - you are lonely.</div>
-    </>;
-  };
+  const addFriendsButton = (
+    <div className="flex justify-between items-center w-full mt-16 mb-6">
+      <h1 className="text-2xl font-semibold mb-4">Friends</h1>
+      <button
+        onClick={() => setModalOpen(true)}
+        className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium shadow-md hover:bg-blue-700 active:scale-95 transition-all duration-200"
+      >
+        Add Friend
+      </button>
+    </div>
+  ) 
+  
+  const content = () => {
+    if (loading) {
+      return <div className="mx-auto max-w-5xl p-6">Loading...</div>;
+    } else if (!loading && friends.length === 0) {
+      return (
+        <div className="mx-auto max-w-5xl p-6">No friends found - you are lonely.</div>
+      )
+    } else {
+      return (
+        <main className="mx-auto max-w-5xl p-6 relative">
+          <FriendsTable friends={friends} setModalOpen={setModalOpen} />
+        </main>
+      )
+    }
+  }
 
   return (
-    <main className="mx-auto max-w-5xl p-6 relative">
+    <>
       {logoutButton}
       <AddFriendModal
         open={modalOpen}
         setOpen={setModalOpen}
         onComplete={handleOnComplete}
       />
-      <div className="flex justify-between items-center w-full mt-12 mb-6">
-        <h1 className="text-2xl font-semibold mb-4">Friends</h1>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium shadow-md hover:bg-blue-700 active:scale-95 transition-all duration-200"
-        >
-          Add Friend
-        </button>
-      </div>
-      <FriendsTable friends={friends} setModalOpen={setModalOpen} />
-    </main>
+      {addFriendsButton}
+      {content()}
+    </>
   );
 }
