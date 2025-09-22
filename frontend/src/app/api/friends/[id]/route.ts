@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// prob add to a env later
 const API_BASE = 'http://localhost:5271/api/friends';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(req: NextRequest, { params }: { params?: { id?: string } }) {
+  const id = params?.id;
+  if (!id) {
+    return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 });
+  }
   const token = req.cookies.get('token')?.value;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

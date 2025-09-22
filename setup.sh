@@ -2,6 +2,34 @@
 
 set -e
 
+# Ensure .NET SDK is installed
+echo "==> Checking if .NET SDK is installed..."
+if ! command -v dotnet &> /dev/null; then
+  echo "Error: .NET SDK is not installed. Please install it from https://dotnet.microsoft.com/download."
+  exit 1
+else
+  echo ".NET SDK is installed."
+fi
+
+# Ensure Podman machine is initialized and started
+echo "==> Checking if Podman machine is initialized..."
+
+if ! podman machine list | grep -q "^podman-machine-default"; then
+  echo "Podman machine not found. Initializing..."
+  podman machine init
+else
+  echo "Podman machine already exists."
+fi
+
+echo "==> Checking if Podman machine is running..."
+
+if ! podman machine list | grep -q "^podman-machine-default.*Currently running"; then
+  echo "Podman machine is not running. Starting..."
+  podman machine start
+else
+  echo "Podman machine is already running."
+fi
+
 # 1. Database: PostgreSQL via Podman
 CONTAINER_NAME="friends-pg"
 VOLUME_NAME="friends_data"
